@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escala de Comportamento Adaptativo Vineland 3 - Professores</title>
+
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --bg-soft:#eef2f7;
+    --card:#ffffff;
+    --line:#e5e7eb;
+    --line-2:#d1d5db;
+    --text:#111827;
+    --muted:#6b7280;
+    --pri:#16a34a;
+    --pri-dark:#15803d;
+    --err:#dc2626;
+    --warn:#d97706;
+    --ok:#059669;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg, #f8fafc, #eef2f7);
+    color: var(--text);
+    min-height: 100dvh;
+    display:flex;
+    align-items:flex-start; /* melhor para formulários longos */
+    justify-content:center;
+    padding:16px;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:860px;
+  }
+
+  .card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  h1{
+    margin:0 0 8px;
+    font-size: clamp(20px, 3vw, 26px);
+    line-height:1.2;
+    color: var(--text);
+  }
+
+  .muted{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:16px;
+    line-height:1.4;
+  }
+
+  .status{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:16px;
+    background:#fff;
+    font-size:14px;
+    line-height:1.4;
+    word-break: break-word;
+  }
+
+  .status.loading{
+    border-color:#cbd5e1;
+    background:#f8fafc;
+    color:#334155;
+  }
+  .status.ok{
+    border-color:rgba(5,150,105,.25);
+    background:#ecfdf5;
+    color:#065f46;
+  }
+  .status.err{
+    border-color:rgba(220,38,38,.22);
+    background:#fef2f2;
+    color:#991b1b;
+  }
+  .status.warn{
+    border-color:rgba(217,119,6,.25);
+    background:#fffbeb;
+    color:#92400e;
+  }
+
+  .hidden{ display:none !important; }
+
+  #metaInfo{
+    margin-bottom:12px;
+  }
+
+  .pill{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#f9fafb;
+    color:#374151;
+    font-size:12px;
+    margin-right:6px;
+    margin-bottom:6px;
+    word-break: break-word;
+  }
+
+  form{
+    display:grid;
+    gap:14px;
+    margin-top:8px;
+  }
+
+  /* === ERRO / OBRIGATÓRIAS SEM RESPOSTA === */
+.row.invalid{
+  border-color: rgba(220,38,38,.65) !important;
+  background:#fef2f2;
+}
+
+.row.invalid .field-label{
+  color: var(--err);
+}
+
+.row.invalid .choice-item{
+  border-color: rgba(220,38,38,.35);
+  background:#fff5f5;
+}
+
+.row.invalid .field-control,
+.row.invalid input:not([type="radio"]):not([type="checkbox"]),
+.row.invalid textarea,
+.row.invalid select{
+  border-color: rgba(220,38,38,.65);
+  box-shadow: 0 0 0 3px rgba(220,38,38,.10);
+}
+
+/* ajuda o scroll a “encaixar” melhor */
+.row{ scroll-margin-top: 16px; }
+
+  .row{
+    display:grid;
+    gap:8px;
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+  }
+
+  .field-label{
+    font-size:14px;
+    color:var(--text);
+    line-height:1.45;
+    font-weight:600;
+  }
+
+  /* Importante: NÃO estilizar todo input (senão quebra radio/checkbox) */
+  .field-control,
+  input:not([type="radio"]):not([type="checkbox"]),
+  textarea,
+  select{
+    width:100%;
+    background:#fff;
+    border:1px solid var(--line-2);
+    color:var(--text);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:16px; /* evita zoom no iPhone */
+    outline:none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .field-control:focus,
+  input:not([type="radio"]):not([type="checkbox"]):focus,
+  textarea:focus,
+  select:focus{
+    border-color:#93c5fd;
+    box-shadow:0 0 0 3px rgba(59,130,246,.14);
+  }
+
+  textarea{
+    min-height:100px;
+    resize:vertical;
+  }
+
+.choice-group{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap:8px;
+  margin-top:4px;
+}
+
+  .choice-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+  background:#f9fafb;
+  cursor:pointer;
+  line-height:1.35;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+  .choice-item:hover{
+    background:#f3f4f6;
+    border-color:#cbd5e1;
+  }
+
+  .choice-item input[type="radio"],
+  .choice-item input[type="checkbox"]{
+    width:18px;
+    height:18px;
+    margin:1px 0 0 0;
+    flex:0 0 18px;
+    accent-color: var(--pri);
+  }
+
+  .choice-text{
+    font-size:14px;
+    color:#111827;
+    line-height:1.35;
+  }
+
+  button{
+    margin-top:6px;
+    border:none;
+    border-radius:10px;
+    padding:12px 14px;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    background:var(--pri);
+    color:#ffffff;
+    transition:.2s ease;
+    width:100%;
+  }
+
+  button:hover{ background:var(--pri-dark); }
+  button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+  }
+
+  .small{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:10px;
+    line-height:1.4;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px){
+    body{
+      padding:10px;
+    }
+
+    .card{
+      border-radius:12px;
+      padding:14px;
+    }
+
+    .row{
+      padding:10px;
+      border-radius:10px;
+    }
+
+    .field-label{
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .choice-item{
+      padding:10px;
+      gap:8px;
+    }
+
+    .choice-text{
+      font-size:13px;
+    }
+
+    .muted, .status{
+      font-size:13px;
+    }
+  }
+</style>
+
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Escala de Comportamento Adaptativo Vineland 3 - Professores</h1>
+  
+
+      <div id="statusBox" class="status loading">Validando acesso...</div>
+
+      <div id="metaInfo" class="hidden"></div>
+
+      <div id="formWrap" class="hidden">
+        <!-- FORMULÁRIO (exemplo) -->
+       <form id="testForm"></form>
+
+       
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    const SUPABASE_URL = "https://ydypdeafbcdcamwigjuq.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_lg9teAniku65cd2dnZJvIQ_Zii0XneZ";
+
+    const TEST_CODE_FIXO = "VINELAND3_PROFESSORES_V2";
+
+        
+   const AREA_PACIENTE_URL = "https://integradaneuropsicologia.github.io/area-do-paciente-v2/";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const FREQ5   = ["Frequentemente","Às vezes","Nunca","Não se aplica" ];
+    const SEVER4  = ["Não","Leve","Moderada","Grave", "Não se aplica"];
+    const YESNO   = ["Sim","Não", "Não se aplica"];
+    const YNP     = ["Nunca","Às vezes","Usualmente ou frequentemente", "Não se aplica"];
+
+/**************************************************************
+ * PONTUAÇÃO DAS ESCALAS
+ * (null = não entra na soma)
+ **************************************************************/
+const SCALE_SCORE_MAPS = {
+  FREQ5: {
+    "Frequentemente":2,
+    "Às vezes":1,
+    "Nunca":0,
+    "Não se aplica":2
+   
+  },
+
+  SEVER4: {
+    "Não": 0,
+    "Leve": 1,
+    "Moderada": 2,
+    "Grave": 3,
+    "Não se aplica": null
+  },
+  YESNO: {
+    "Não": 0,
+    "Sim": 1,
+    "Não se aplica": null
+  },
+  YNP: {
+"Nunca":0,
+"Às vezes":1,
+"Usualmente ou frequentemente":2, 
+"Não se aplica":null
+  }
+};
+
+    /**************************************************************
+ * CONFIGURAÇÃO DAS PERGUNTAS (DINÂMICO)
+ **************************************************************/
+const FORM_QUESTIONS = [
+  {
+    name: "1",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem fala o próprio primeiro nome ou apelido quando perguntado.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "2",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem consegue nomear pelo menos três ações (por exemplo: beber/bebendo, comer/comendo, brincar/brincando).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "3",
+    section: "Comunicação",
+    type: "radio",
+    text: "Quando perguntada, a criança/jovem fala a própria idade corretamente (pode contar nos dedos).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "4",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem responde perguntas do tipo 'quem?' de forma adequada (por exemplo: 'Quem é esse?' → 'Esse é o João').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "5",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem reconhece ou identifica uma ou mais letras do alfabeto.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "6",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem entende o significado de gestos sociais mais complexos (por exemplo: chamar com a mão para aproximar, dedo nos lábios para 'silêncio', mãos abertas mostrando tamanho).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "7",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem segue instruções com duas ações relacionadas (por exemplo: 'Pegue os brinquedos e guarde', 'Pegue o casaco e vista').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "8",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem responde perguntas que começam com 'por que?' explicando o motivo (por exemplo: 'Por que você está chorando?' → 'Meu brinquedo quebrou').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "9",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem usa plural corretamente em substantivos (por exemplo: 'dois gatos', 'aquelas flores').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "10",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem segue instruções com uma ação e dois objetos/pessoas (por exemplo: 'Traga os giz de cera e a bola', 'Chame o José e a Maria para entrar').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "11",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem usa pronomes corretamente, com concordância adequada (por exemplo: eu, ele, ela, dele/dela).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "12",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem consegue contar partes básicas de uma história (de casa, de um livro, de um filme), explicando quem são os personagens, o que aconteceu e como terminou, de um jeito que faça sentido.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "13",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem usa verbos no passado de forma adequada (por exemplo: 'ele falou', 'eu queria').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "14",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem copia o próprio primeiro nome sem erros.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "15",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem usa conhecimento ou opinião própria para comentar situações e emoções de outras pessoas (por exemplo: 'Eu acho que ele ficou bravo porque ela falou coisa ruim dele').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "16",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem mantém atenção em uma explicação/apresentação formal (por exemplo, aula) por cerca de 30 minutos e demonstra entender o que está acontecendo.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "17",
+    section: "Comunicação",
+    type: "radio",
+    text: "Quando perguntada, a criança/jovem informa corretamente o mês e o dia do próprio aniversário.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "18",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem segue instruções que envolvem direita e esquerda (por exemplo: 'Vire para a esquerda', 'Olhe para a direita').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "19",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem escreve nome e sobrenome completos, de memória, sem erros importantes.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "20",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem escreve pelo menos 10 palavras simples (por exemplo: 'casa', 'bola'); pequenos erros de ortografia são aceitos.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "21",
+    section: "Comunicação",
+    type: "radio",
+    text: "Se não é compreendida na primeira vez, a criança/jovem reformula o que quis dizer usando outras palavras.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "22",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem presta atenção em uma apresentação informal (por exemplo: palestra curta ou vídeo educativo) por cerca de 30 minutos e entende o conteúdo.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "23",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem lê em voz alta frases simples com três ou mais palavras.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "24",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem entende sarcasmo/ironia em falas simples (percebe quando 'Isso é ótimo!' quer dizer 'Isso é horrível').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "25",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem consegue escrever bilhetes, cartas, e-mails ou pequenos textos com pelo menos três frases completas (pode usar abreviações e ter pequenos erros de ortografia ou gramática).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "26",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem consegue dar instruções/direções com três ou mais passos em ordem lógica (por exemplo: explicar como chegar em um lugar ou como fazer uma tarefa mais complexa).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "27",
+    section: "Comunicação",
+    type: "radio",
+    text: "Se recebe uma instrução para fazer algo mais tarde (até 1 hora depois), a criança/jovem lembra e faz sem precisar ser lembrada.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "28",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem consegue preencher formulários simples (em papel ou digitais) de até uma página, como fichas escolares.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "29",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem escreve ou desenha instruções passo a passo para outra pessoa (por exemplo: como fazer alguma coisa ou como chegar em algum lugar).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "30",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem usa a internet ou a biblioteca para pesquisar informações e produzir um trabalho ou tarefa.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "31",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem lê e compreende textos em nível de 4º ano escolar ou superior.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "32",
+    section: "Comunicação",
+    type: "radio",
+    text: "A criança/jovem escreve relatórios, redações ou trabalhos de pelo menos uma página usando palavras próprias (sem apenas copiar de outra fonte).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+
+  {
+    name: "33",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem alimenta-se sozinha com talher sem derramar.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "34",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem é levada ao banheiro e utiliza o banheiro sem ajuda.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "35",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem consegue vestir roupas que abrem na frente (casaco, jaqueta) sem ajuda; não precisa abotoar ou fechar zíper para estar vestida.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "36",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem lava as mãos usando sabão e água, enxágua e seca; consegue abrir e fechar a torneira se necessário.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "37",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem encontra e usa o banheiro de forma apropriada, com independência e autonomia.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "38",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem conta em sequência numérica pelo menos 10 objetos, um por um.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "39",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem limpa ou assoa o nariz usando lenço, guardanapo, papel higiênico ou outro material apropriado.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "40",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem permanece em uma atividade por pelo menos 5 minutos sem exigir atenção direta do professor.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "41",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem compreende que o relógio serve para informar as horas (mesmo que ainda não saiba dizer as horas sozinha).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "42",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem cuida dos próprios objetos na escola (não perde e não danifica).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "43",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem demonstra noção de privacidade própria e dos outros (por exemplo, entende que usar o banheiro ou trocar de roupa é algo privado).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "44",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem identifica os números escritos de 1 a 9.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "45",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem cobre a boca e o nariz ao tossir ou espirrar.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "46",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem limpa a mesa ou o espaço de brincar ao final da atividade (joga lixo, limpa respingos de cola ou tinta).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "47",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem pede ajuda quando não compreende algo.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "48",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem mantém-se atenta e focada enquanto a professora está explicando durante a aula.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "49",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem se apresenta com as unhas cortadas e limpas.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "50",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem demonstra saber que alguns alimentos são mais saudáveis que outros (por exemplo, frutas e vegetais são mais saudáveis que alimentos muito açucarados ou gordurosos).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "51",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem usa a tecnologia oferecida pela escola (computador etc.) com independência quando necessário para realizar uma tarefa.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "52",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem relaciona um conteúdo ou material novo com algo que ela já conhece.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "53",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem entrega bilhetes, formulários etc. entre escola e casa e casa e escola por iniciativa própria (sem depender só de pais/professores para tirar da mochila).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "54",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem completa as lições de casa e entrega no prazo combinado.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "55",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem diz os 12 meses do ano em ordem, quando perguntada.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "56",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem entende que alguns itens custam mais do que outros e consegue comparar preços (por exemplo: 'Tenho dinheiro para o chiclete, mas não para a barra de chocolate', ou 'Qual caneta custa menos?').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "57",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem diz corretamente o valor de 2 reais, 5 reais e 10 reais quando perguntada.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "58",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem diz as horas usando um relógio digital ou de ponteiros.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "59",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem informa em que horário acontecem atividades do dia a dia (por exemplo: '10:30 é o intervalo', '12:00 é hora do almoço').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "60",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem usa régua, fita métrica ou outro instrumento de medida para medir em centímetros e metros.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "61",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem compreende frações comuns (por exemplo: 1/2, 1/3, 1/4).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "62",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem revisa o próprio trabalho para encontrar enganos e erros.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "63",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem resolve subtração com números de dois dígitos fazendo empréstimo quando necessário.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "64",
+    section: "Atividades de Vida Diária",
+    type: "radio",
+    text: "A criança/jovem planeja e organiza projetos de longo prazo para não atrasar a entrega (sabe quais tarefas precisa fazer e estima o tempo necessário).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+
+  {
+    name: "65",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem reconhece o próprio gênero e o gênero dos outros (por exemplo: diz 'Eu sou um menino' ou 'Maria é uma menina').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "66",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem brinca de forma interativa com um ou mais colegas por pelo menos 5 minutos, com um adulto supervisionando.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "67",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem consegue falar sobre o próprio relacionamento com outras pessoas (por exemplo: 'Essa é minha professora', 'Ele é meu irmão').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "68",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem ajuda os outros quando é solicitada.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "69",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem compartilha brinquedos ou materiais pessoais quando é solicitada.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "70",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem participa de jogos simples em grupo, sem pontuação, ao ar livre (por exemplo: pular corda, pega-pega, esconde-esconde).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "71",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem brinca de forma interativa com um ou mais colegas por pelo menos 20 minutos, com um adulto supervisionando.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "72",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem agradece quando recebe algo (por exemplo: diz 'obrigado(a)').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "73",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem se protege afastando-se de colegas que machucam os outros ou destroem coisas (por exemplo: colegas que mordem, batem, jogam coisas, quebram objetos).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "74",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem usa palavras ou gestos para expressar angústia em vez de gritar, bater ou jogar objetos.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "75",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem aceita sugestões ou soluções dadas por professores ou outras pessoas.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "76",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem demonstra, por iniciativa própria, felicidade, empatia ou preocupação com os outros (por exemplo: abraça, dá a mão, pergunta 'Você está bem?').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "77",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem chama outras pessoas para brincar ou passar tempo junto.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "78",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem controla raiva ou mágoa quando há mudanças de planos por motivos externos (por exemplo: um evento escolar é cancelado por mau tempo ou problema no transporte).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "79",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem consegue esperar a própria vez quando é solicitado, durante um jogo ou atividade esportiva.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "80",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem modifica conscientemente seu comportamento dependendo de quanto conhece a outra pessoa (por exemplo: age de forma diferente com um colega novo em comparação com um amigo próximo).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "81",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem demonstra bom senso esportivo durante jogos e esportes: joga de forma justa, não é excessivamente agressiva, parabeniza quem vence e não reage mal quando perde.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "82",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem controla raiva ou frustração quando não consegue algo que quer (por exemplo: quando um pedido é negado).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "83",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem se mostra disposta a ajustar sua fala ou comportamento para evitar conflito.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "84",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem ajusta o tom de voz de acordo com a situação (por exemplo: fala mais baixo quando a sala precisa de silêncio e fala mais alto quando os outros não conseguem ouvi-la).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "85",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem muda de assunto quando necessário durante uma conversa; não fica presa em um único tema.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "86",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem participa de jogos simples, em ambientes internos e externos, que envolvem competição (por exemplo: jogo da velha, futebol, jogos de cartas).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "87",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem ajusta o próprio comportamento para não atrapalhar quem está em volta (por exemplo: fica em silêncio perto de pessoas que estão trabalhando).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "88",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem coopera com outras pessoas para planejar ou participar de atividades e trabalhos em grupo.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "89",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem respeita o tempo do outro (por exemplo: não interrompe alguém ocupado e não faz o outro ficar esperando sem necessidade).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "90",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem se afasta ou deixa de participar de um grupo quando os outros dão sinais verbais ou não verbais de que ela não é bem-vinda.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "91",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem pensa nas consequências das próprias ações antes de agir (por exemplo: se controla para não agir de forma impulsiva e leva em conta informações importantes).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "92",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem inicia conversas informais quando encontra pessoas conhecidas (por exemplo: 'Como você está?', 'E aí?').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "93",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem participa de conversas sobre assuntos que não são de interesse próprio.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "94",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem entende sugestões indiretas ou pistas sociais durante conversas (por exemplo: entende que um bocejo pode significar 'Estou entediado', que mudar de assunto pode significar 'Não quero falar disso', ou que olhar para o relógio pode significar 'Eu preciso encerrar essa conversa').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "95",
+    section: "Socialização",
+    type: "radio",
+    text: "A criança/jovem fornece explicações adicionais quando necessário para ajudar o outro a entender o que ela quis dizer (por exemplo: 'Caso você não tenha ouvido...', 'A gente estava falando sobre...').",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+
+  {
+    name: "96",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem joga bola em uma direção específica (não joga de qualquer jeito, mas direciona).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "97",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem pula no chão com os dois pés sem cair.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "98",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem sobe e desce brinquedos altos (por exemplo: trepa-trepa, escorregador com vários degraus) de maneira segura.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "99",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem fica em um pé só por pelo menos 2 segundos.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "100",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem corre com facilidade, mudando velocidade e direção (por exemplo: em pega-pega ou em atividades esportivas).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "101",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem caminha dois ou mais quarteirões sem precisar parar para descansar ou pedir apoio físico.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "102",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem anda com cuidado em calçadas ou pisos escorregadios ou irregulares.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "103",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem faz movimento de rosquear com a mão (por exemplo: dar corda em um brinquedo, abrir/fechar tampa de frasco).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "104",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem segura e usa giz de cera, caneta ou lápis na posição correta (preensão trípode, não segurando 'inteiro' com a mão).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "105",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem aperta botões com precisão em um teclado pequeno ou tela de toque (por exemplo: calculadora, celular ou outro dispositivo portátil).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "106",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem pega uma bola pequena a uma distância de meio metro a um metro, usando uma ou as duas mãos, afastadas do corpo.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "107",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem usa tesoura para cortar ao longo de uma linha reta em uma folha de papel comum.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "108",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem desenha mais de uma forma reconhecível (por exemplo: pessoa, casa, árvore).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "109",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem recorta formas simples (por exemplo: círculo, quadrado, retângulo).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "110",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem usa borracha sem rasgar o papel.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "111",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem monta, constrói ou cria estruturas complexas com brinquedos de montar, lápis e papéis etc.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "112",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem pinta um desenho de página inteira usando duas ou mais cores, mantendo todas as cores dentro do contorno.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "113",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem desenha uma linha reta usando uma régua.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "114",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem sabe fazer um nó ou laço.",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  },
+  {
+    name: "115",
+    section: "Atividades",
+    type: "radio",
+    text: "A criança/jovem recorta formas complexas (por exemplo: estrelas, animais, letras do alfabeto).",
+    options: YNP,
+    scale: "YNP",
+    required: true
+  }
+];
+
+
+const INDICATORS_CONFIG = {
+  Comunicacao: {
+    label: "Nível de domínio - Comunicação",
+    questions: ["1",
+"2",
+"3",
+"4",
+"5",
+"6",
+"7",
+"8",
+"9",
+"10",
+"11",
+"12",
+"13",
+"14",
+"15",
+"16",
+"17",
+"18",
+"19",
+"20",
+"21",
+"22",
+"23",
+"24",
+"25",
+"26",
+"27",
+"28",
+"29",
+"30",
+"31",
+"32",
+"33",
+"34",
+"35",
+"36",
+"37",
+"38",
+"39",
+"40",
+],
+    },
+
+    Atividades_de_vida_diaria: {
+        label: "Nível de domínio - Atividade de vida diária",
+         questions: ["41","42","43","44","45","46",
+"47",
+"48",
+"49",
+"50",
+"51",
+"52",
+"53",
+"54",
+"55",
+"56",
+"57",
+"58",
+"59",
+"60",
+"61",
+"62",
+"63",
+"64",
+"65",
+"66",
+"67",
+"68",
+"69",
+"70",
+"71",
+"72",
+"73",
+"74",
+"75",
+"76",
+"77",
+"78",
+"79",
+"80"
+
+],
+
+  },
+
+  Socializacao: {
+        label: "Nível de domínio - Socialização",
+        questions: [
+"81",
+"82",
+"83",
+"84",
+"85",
+"86",
+"87",
+"88",
+"89",
+"90",
+"91",
+"92",
+"93",
+"94",
+"95",
+"96",
+"97",
+"98",
+"99",
+"100",
+"101",
+"102",
+"103",
+"104",
+"105",
+"106",
+"107",
+"108",
+"109",
+"110",
+"111",
+"112",
+"113",
+"114",
+"115",
+"116",
+"117",
+"118",
+"119",
+"120"
+],
+
+  },
+
+  Habilidades_Motoras: {
+        label: "Habilidades Motoras",
+        questions: [
+
+"121",
+"122",
+"123",
+"124",
+"125",
+"126",
+"127",
+"128",
+"129",
+"130",
+"131",
+"132",
+"133",
+"134",
+"135",
+"136",
+"137",
+"138",
+"139",
+"140",
+"141",
+"142",
+"143",
+"144",
+"145"
+],
+
+  }
+};
+
+    /**************************************************************
+     * HELPERS
+     **************************************************************/
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(text, type = "loading") {
+      const el = $("statusBox");
+      el.textContent = text;
+      el.className = `status ${type}`;
+    }
+
+    function normalizeCPF(cpf) {
+      return String(cpf || "").replace(/\D/g, "");
+    }
+
+    function getCpfFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+   
+      let cpf = params.get("cpf");
+      if (cpf) return normalizeCPF(cpf);
+
+      const raw = window.location.search.replace("?", "").trim();
+      if (/^\d{11}$/.test(raw)) return raw;
+
+      return "";
+    }
+
+    function getTestCodeFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("code") || TEST_CODE_FIXO;
+    }
+
+    function isObject(v) {
+      return v && typeof v === "object" && !Array.isArray(v);
+    }
+
+    /**
+     * Verifica se o "code" existe dentro do JSONB (array, objeto, objeto aninhado)
+     * Isso deixa o código flexível para diferentes formatos de JSONB.
+     */
+    function containsTestCode(jsonb, testCode) {
+      if (!jsonb) return false;
+
+      // string simples
+      if (typeof jsonb === "string") {
+        return jsonb === testCode;
+      }
+
+      // array
+      if (Array.isArray(jsonb)) {
+        return jsonb.some(item => {
+          if (typeof item === "string") return item === testCode;
+          if (isObject(item)) {
+            return item.code === testCode || item.test_code === testCode || item.id === testCode || containsTestCode(item, testCode);
+          }
+          return false;
+        });
+      }
+
+      // objeto
+      if (isObject(jsonb)) {
+        // Caso 1: chave do objeto é o próprio código
+        if (Object.prototype.hasOwnProperty.call(jsonb, testCode)) {
+          const value = jsonb[testCode];
+
+          // Se a chave existe e é true / objeto / string, tratamos como "existe"
+          // (depois as funções específicas interpretam o status)
+          if (value !== false && value !== null && value !== undefined) return true;
+
+          // se existir mas estiver false, ainda pode ser "não liberado/feito"
+          return false;
+        }
+
+        // Caso 2: objeto com campo code
+        if (jsonb.code === testCode || jsonb.test_code === testCode || jsonb.id === testCode) {
+          return true;
+        }
+
+        // Caso 3: busca recursiva
+        return Object.values(jsonb).some(v => containsTestCode(v, testCode));
+      }
+
+      return false;
+    }
+
+    /**
+     * Interpreta "tests_liberados"
+     * Aceita formatos como:
+     * - ["teste_a", "teste_b"]
+     * - [{"code":"teste_a"}]
+     * - {"teste_a": true, "teste_b": false}
+     * - {"lista":[...]} (aninhado)
+     */
+    function isTestLiberado(testsLiberados, testCode) {
+      if (!containsTestCode(testsLiberados, testCode)) return false;
+
+      if (isObject(testsLiberados) && Object.prototype.hasOwnProperty.call(testsLiberados, testCode)) {
+        const v = testsLiberados[testCode];
+        if (typeof v === "boolean") return v;
+        if (isObject(v) && "liberado" in v) return Boolean(v.liberado);
+        if (typeof v === "string") return !["false", "0", "nao", "não"].includes(v.toLowerCase());
+        return Boolean(v);
+      }
+
+      // Se está em array/string/objeto sem flag explícita, consideramos liberado
+      return true;
+    }
+
+    /**
+     * Interpreta "tests_feitos"
+     * Aceita formatos como:
+     * - ["teste_a", "teste_b"]
+     * - [{"code":"teste_a"}]
+     * - {"teste_a": true}
+     * - {"teste_a": {"feito": true}}
+     */
+    function isTestFeito(testsFeitos, testCode) {
+      if (!containsTestCode(testsFeitos, testCode)) return false;
+
+      if (isObject(testsFeitos) && Object.prototype.hasOwnProperty.call(testsFeitos, testCode)) {
+        const v = testsFeitos[testCode];
+        if (typeof v === "boolean") return v;
+        if (isObject(v) && "feito" in v) return Boolean(v.feito);
+        if (typeof v === "string") return !["false", "0", "nao", "não"].includes(v.toLowerCase());
+        return Boolean(v);
+      }
+
+      // Se apareceu em array, já consideramos que foi feito
+      return true;
+    }
+
+    function redirectToAreaPaciente(cpf) {
+      window.location.href = `${AREA_PACIENTE_URL}?${cpf}`;
+    }
+
+    function normalizeTestsFeitosForSave(current) {
+  const out = {};
+
+  if (!current) return out;
+
+  // string simples
+  if (typeof current === "string") {
+    out[current] = { feito: true };
+    return out;
+  }
+
+  // array
+  if (Array.isArray(current)) {
+    current.forEach(item => {
+      if (typeof item === "string") {
+        out[item] = { feito: true };
+      } else if (isObject(item)) {
+        const code = item.code || item.test_code || item.id;
+        if (code) {
+          out[code] = {
+            ...item,
+            feito: ("feito" in item) ? Boolean(item.feito) : true
+          };
+        }
+      }
+    });
+    return out;
+  }
+
+  // objeto
+  if (isObject(current)) {
+    Object.entries(current).forEach(([key, value]) => {
+      if (typeof value === "boolean") {
+        out[key] = { feito: value };
+      } else if (typeof value === "string") {
+        out[key] = { feito: !["false", "0", "nao", "não"].includes(value.toLowerCase()) };
+      } else if (isObject(value)) {
+        out[key] = { ...value };
+      } else {
+        out[key] = { feito: Boolean(value) };
+      }
+    });
+  }
+
+  return out;
+}
+
+function buildUpdatedTestsFeitos(currentTestsFeitos, testCode, submittedAtIso) {
+  const next = normalizeTestsFeitosForSave(currentTestsFeitos);
+
+  next[testCode] = {
+    ...(isObject(next[testCode]) ? next[testCode] : {}),
+    feito: true,
+    submitted_at: submittedAtIso
+  };
+
+  return next;
+}
+
+function interpretByCutoffs(score, cutoffs) {
+  if (!Number.isFinite(score) || !Array.isArray(cutoffs)) return null;
+
+  for (const rule of cutoffs) {
+    const min = (rule.min ?? -Infinity);
+    const max = (rule.max ?? Infinity);
+    if (score >= min && score <= max) return rule;
+  }
+  return null;
+}
+
+    /**************************************************************
+     * VALIDAÇÃO PRINCIPAL
+     **************************************************************/
+    async function validarAcessoAoTeste() {
+      const cpf = getCpfFromUrl();
+      const testCode = getTestCodeFromUrl();
+
+      if (!cpf || cpf.length !== 11) {
+        setStatus("CPF inválido ou ausente na URL.", "err");
+        return;
+      }
+
+      if (!testCode) {
+        setStatus("Código do teste não informado.", "err");
+        return;
+      }
+
+      // Meta info visual (só pra debug/controle)
+      $("metaInfo").classList.remove("hidden");
+      $("metaInfo").innerHTML = `
+        <span class="pill">CPF: ${cpf}</span>
+        <span class="pill">Teste: ${testCode}</span>
+      `;
+
+      setStatus("Consultando liberação do teste...", "loading");
+
+      const { data, error } = await supabaseClient
+        .from("patients")
+        .select("cpf, tests_liberados, tests_feitos")
+        .eq("cpf", cpf)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        setStatus("Erro ao consultar a base de dados.", "err");
+        return;
+      }
+
+      if (!data) {
+        setStatus("CPF não encontrado.", "err");
+        return;
+      }
+
+      const liberado = isTestLiberado(data.tests_liberados, testCode);
+
+      if (!liberado) {
+        setStatus("Teste não liberado.", "warn");
+        return;
+      }
+
+      const feito = isTestFeito(data.tests_feitos, testCode);
+
+      if (feito) {
+        setStatus("Teste já realizado. Redirecionando para a área do paciente...", "ok");
+        setTimeout(() => redirectToAreaPaciente(cpf), 700);
+        return;
+      }
+
+      // Se chegou aqui, pode abrir o formulário
+      setStatus("Teste liberado. Formulário disponível.", "ok");
+      $("formWrap").classList.remove("hidden");
+    }
+
+
+/**************************************************************
+ * FORMULÁRIO DINÂMICO
+ **************************************************************/
+function slugify(str = "") {
+  return String(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function escapeHtml(text = "") {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function normalizeOption(option) {
+  if (typeof option === "string") {
+    return { value: option, label: option };
+  }
+  if (option && typeof option === "object") {
+    return {
+      value: option.value ?? option.label ?? "",
+      label: option.label ?? option.value ?? ""
+    };
+  }
+  return { value: "", label: "" };
+}
+
+function renderDynamicForm(questions = []) {
+  const form = $("testForm");
+  form.innerHTML = "";
+  form.noValidate = true;
+
+  questions.forEach((q, index) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const fieldName = getFieldName(q, index);
+    row.dataset.field = fieldName; 
+    const fieldId = `field_${fieldName}_${index}`;
+
+    const label = document.createElement("label");
+    label.className = "field-label";
+    label.setAttribute("for", fieldId);
+    label.textContent = q.text || `Pergunta ${index + 1}`;
+    row.appendChild(label);
+
+    const type = (q.type || "text").toLowerCase();
+
+    // INPUTS SIMPLES
+    if (["text", "email", "number", "date", "tel", "password"].includes(type)) {
+      const input = document.createElement("input");
+      input.type = type;
+      input.id = fieldId;
+      input.name = fieldName;
+      input.placeholder = q.placeholder || "";
+      input.required = !!q.required;
+      if (q.min !== undefined) input.min = q.min;
+      if (q.max !== undefined) input.max = q.max;
+      if (q.step !== undefined) input.step = q.step;
+      row.appendChild(input);
+      input.className = "field-control";
+      
+    }
+
+    // TEXTAREA
+    else if (type === "textarea") {
+      const textarea = document.createElement("textarea");
+      textarea.id = fieldId;
+      textarea.name = fieldName;
+      textarea.placeholder = q.placeholder || "";
+      textarea.required = !!q.required;
+      row.appendChild(textarea);
+      textarea.className = "field-control";
+    }
+
+    // SELECT
+    else if (type === "select") {
+      const select = document.createElement("select");
+      select.id = fieldId;
+      select.name = fieldName;
+      select.required = !!q.required;
+
+        select.className = "field-control";
+
+      (q.options || []).forEach(optRaw => {
+        const opt = normalizeOption(optRaw);
+        const optionEl = document.createElement("option");
+        optionEl.value = opt.value;
+        optionEl.textContent = opt.label;
+        select.appendChild(optionEl);
+      });
+
+      row.appendChild(select);
+    }
+
+    // RADIO
+    else if (type === "radio") {
+      const group = document.createElement("div");
+        group.className = "choice-group";
+      (q.options || []).forEach((optRaw, optIndex) => {
+        const opt = normalizeOption(optRaw);
+        const optionId = `${fieldId}_radio_${optIndex}`;
+
+        const wrap = document.createElement("label");
+        wrap.setAttribute("for", optionId);
+        wrap.className = "choice-item";
+        
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.id = optionId;
+        input.name = fieldName;
+        input.value = opt.value;
+        input.required = !!q.required && optIndex === 0;
+
+        const span = document.createElement("span");
+        span.className = "choice-text";
+        span.textContent = opt.label;
+
+        wrap.appendChild(input);
+        wrap.appendChild(span);
+        group.appendChild(wrap);
+      });
+
+      row.appendChild(group);
+    }
+
+    // CHECKBOX (duas formas)
+    // - sem options: checkbox único (boolean)
+    // - com options: grupo de checkbox (múltipla escolha)
+    else if (type === "checkbox") {
+      if (Array.isArray(q.options) && q.options.length > 0) {
+        const group = document.createElement("div");
+        group.className = "choice-group";
+       
+
+        (q.options || []).forEach((optRaw, optIndex) => {
+          const opt = normalizeOption(optRaw);
+          const optionId = `${fieldId}_check_${optIndex}`;
+
+          const wrap = document.createElement("label");
+          wrap.setAttribute("for", optionId);
+          wrap.className = "choice-item";
+     
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.id = optionId;
+          input.name = fieldName; // mesmo name = vira array no helper
+          input.value = opt.value;
+
+          const span = document.createElement("span");
+          span.className = "choice-text";
+          span.textContent = opt.label;
+
+          wrap.appendChild(input);
+          wrap.appendChild(span);
+          group.appendChild(wrap);
+        });
+
+        row.appendChild(group);
+      } else {
+        const wrap = document.createElement("label");
+        wrap.setAttribute("for", fieldId);
+        wrap.className = "choice-item";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = fieldId;
+        input.name = fieldName;
+        input.value = "true";
+
+       const span = document.createElement("span");
+        span.className = "choice-text";
+        span.textContent = q.checkboxText || "Marcar";
+
+        wrap.appendChild(input);
+        wrap.appendChild(span);
+        row.appendChild(wrap);
+      }
+    }
+
+    // FALLBACK
+    else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = fieldId;
+      input.name = fieldName;
+      input.placeholder = q.placeholder || "";
+      input.required = !!q.required;
+      row.appendChild(input);
+      input.className = "field-control";
+    }
+
+    form.appendChild(row);
+  });
+
+
+  // botão enviar (mantém seu id)
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.id = "submitBtn";
+  submitBtn.textContent = "Enviar";
+  form.appendChild(submitBtn);
+}
+
+function getFieldName(q, index) {
+  return q.name || `q_${index + 1}_${slugify(q.text || q.type || "campo")}`;
+}
+
+function getOptionLabelFromQuestion(q, value) {
+  if (Array.isArray(value)) {
+    return value.map(v => getOptionLabelFromQuestion(q, v));
+  }
+
+  const options = Array.isArray(q.options) ? q.options.map(normalizeOption) : [];
+  const found = options.find(opt => String(opt.value) === String(value));
+
+  return found ? found.label : value;
+}
+
+function buildResultsPerguntasRespostas(questions, answersObj) {
+  const respostas = [];
+
+  questions.forEach((q, index) => {
+    const fieldName = getFieldName(q, index);
+
+    // salva só o que foi respondido
+    if (!Object.prototype.hasOwnProperty.call(answersObj, fieldName)) return;
+
+    const rawValue = answersObj[fieldName];
+    const respostaFormatada = getOptionLabelFromQuestion(q, rawValue);
+
+    respostas.push({
+      pergunta: q.text || `Pergunta ${index + 1}`,
+      resposta: respostaFormatada
+    });
+  });
+
+  return respostas;
+}
+// === POLYFILL CSS.escape (salva em alguns mobiles/webviews) ===
+(function () {
+  if (!window.CSS) window.CSS = {};
+  if (typeof window.CSS.escape !== "function") {
+    window.CSS.escape = function (value) {
+      return String(value).replace(/[^a-zA-Z0-9_\-]/g, function (ch) {
+        return "\\" + ch;
+      });
+    };
+  }
+})();
+
+
+function formDataToObject(formEl) {
+  const fd = new FormData(formEl);
+  const result = {};
+
+  for (const [key, value] of fd.entries()) {
+    if (Object.prototype.hasOwnProperty.call(result, key)) {
+      if (!Array.isArray(result[key])) {
+        result[key] = [result[key]];
+      }
+      result[key].push(value);
+    } else {
+      result[key] = value;
+    }
+  }
+
+  // Checkboxes boolean (sem options) não aparecem se desmarcados.
+  // Então vamos completar com false.
+  const checkboxes = formEl.querySelectorAll('input[type="checkbox"]');
+  const checkboxNames = new Set([...checkboxes].map(c => c.name));
+
+  checkboxNames.forEach(name => {
+    const group = [...formEl.querySelectorAll(`input[type="checkbox"][name="${CSS.escape(name)}"]`)];
+    if (group.length === 1) {
+      // checkbox único -> boolean
+      result[name] = group[0].checked;
+    } else {
+      // grupo -> array (se nenhum marcado, array vazio)
+      if (!Object.prototype.hasOwnProperty.call(result, name)) {
+        result[name] = [];
+      } else if (!Array.isArray(result[name])) {
+        result[name] = [result[name]];
+      }
+    }
+  });
+
+  return result;
+}
+
+
+/**************************************************************
+ * CÁLCULO DE PONTUAÇÃO
+ **************************************************************/
+function getQuestionByFieldName(questions, fieldName) {
+  for (let i = 0; i < questions.length; i++) {
+    const qName = getFieldName(questions[i], i);
+    if (qName === fieldName) return { question: questions[i], index: i };
+  }
+  return null;
+}
+
+function getFieldNameByQuestionRef(questions, ref) {
+  // ref pode ser nome ("tea_reciprocidade") ou número da posição (1-based)
+  if (typeof ref === "string") return ref;
+  if (typeof ref === "number") {
+    const idx = ref - 1;
+    if (idx >= 0 && idx < questions.length) {
+      return getFieldName(questions[idx], idx);
+    }
+  }
+  return null;
+}
+
+function getMaxScaleScore(scaleName) {
+  const map = SCALE_SCORE_MAPS[scaleName] || {};
+  const nums = Object.values(map).filter(v => Number.isFinite(v));
+  return nums.length ? Math.max(...nums) : 0;
+}
+
+function scoreSingleAnswer(question, rawValue) {
+  if (!question || !question.scale) return null;
+
+  const scoreMap = SCALE_SCORE_MAPS[question.scale];
+  if (!scoreMap) return null;
+
+  // checkbox múltiplo / arrays não entram aqui (a menos que você queira tratar separado)
+  if (Array.isArray(rawValue)) return null;
+
+  const baseScore = scoreMap[rawValue];
+
+  // resposta não pontuável ("Não sei", "Não se aplica", etc.)
+  if (baseScore === null || baseScore === undefined) {
+    return {
+      rawValue,
+      baseScore: null,
+      score: null,
+      reverse: !!question.reverse,
+      ignored: true,
+      reason: "Resposta sem pontuação"
+    };
+  }
+
+  const maxScore = getMaxScaleScore(question.scale);
+  const finalScore = question.reverse ? (maxScore - baseScore) : baseScore;
+
+  return {
+    rawValue,
+    baseScore,
+    score: finalScore,
+    reverse: !!question.reverse,
+    ignored: false,
+    maxScore,
+    scale: question.scale
+  };
+}
+
+function calculateQuestionScores(questions, answersObj) {
+  const perQuestion = {};
+  const questionsIndex = []; // útil para depuração
+
+  questions.forEach((q, index) => {
+    const fieldName = getFieldName(q, index);
+    const hasAnswer = Object.prototype.hasOwnProperty.call(answersObj, fieldName);
+
+    if (!hasAnswer) return;
+
+    const rawValue = answersObj[fieldName];
+    const scored = scoreSingleAnswer(q, rawValue);
+
+    perQuestion[fieldName] = {
+      index: index + 1,
+      name: fieldName,
+      text: q.text || `Pergunta ${index + 1}`,
+      ...scored
+    };
+
+    questionsIndex.push({
+      n: index + 1,
+      name: fieldName,
+      text: q.text || `Pergunta ${index + 1}`
+    });
+  });
+
+  return { perQuestion, questionsIndex };
+}
+
+function calculateIndicators(questions, perQuestionScores, indicatorsConfig) {
+  const indicators = {};
+
+  Object.entries(indicatorsConfig || {}).forEach(([indicatorKey, cfg]) => {
+    const refs = Array.isArray(cfg.questions) ? cfg.questions : [];
+    const fieldNames = refs
+      .map(ref => getFieldNameByQuestionRef(questions, ref))
+      .filter(Boolean);
+
+    let sum = 0;
+    let maxPossible = 0;
+    let answeredCount = 0;
+    let ignoredCount = 0;
+
+    const items = [];
+
+    fieldNames.forEach(fieldName => {
+      const qScore = perQuestionScores[fieldName];
+
+      if (!qScore) {
+        items.push({ fieldName, included: false, reason: "Sem resposta" });
+        return;
+      }
+
+      if (qScore.ignored || qScore.score === null || qScore.score === undefined) {
+        ignoredCount++;
+        items.push({
+          fieldName,
+          included: false,
+          reason: qScore.reason || "Ignorada",
+          rawValue: qScore.rawValue
+        });
+        return;
+      }
+
+      answeredCount++;
+      sum += qScore.score;
+      maxPossible += (qScore.maxScore ?? 0);
+
+      items.push({
+        fieldName,
+        included: true,
+        score: qScore.score,
+        rawValue: qScore.rawValue
+      });
+    });
+
+    indicators[indicatorKey] = {
+      label: cfg.label || indicatorKey,
+      sum,
+      maxPossible,
+      answeredCount,
+      ignoredCount,
+      percent: maxPossible > 0 ? Number(((sum / maxPossible) * 100).toFixed(2)) : null,
+      items
+    };
+  });
+
+  return indicators;
+}
+
+function buildScoringResult(questions, answersObj, indicatorsConfig) {
+  const { perQuestion, questionsIndex } = calculateQuestionScores(questions, answersObj);
+  const indicators = calculateIndicators(questions, perQuestion, indicatorsConfig);
+
+  return {
+    questionsIndex,     // mapa do nº da questão -> name (útil pra auditoria)
+    perQuestion,        // pontuação questão por questão
+    indicators          // somas dos domínios
+  };
+}
+
+function clearInvalidUI(formEl){
+  formEl.querySelectorAll(".row.invalid").forEach(r => r.classList.remove("invalid"));
+  formEl.querySelectorAll('[aria-invalid="true"]').forEach(el => el.removeAttribute("aria-invalid"));
+}
+
+function isRequiredAnswered(q, index, formEl){
+  if (!q?.required) return true;
+
+  const fieldName = getFieldName(q, index);
+  const type = String(q.type || "text").toLowerCase();
+
+  if (type === "radio") {
+    return !!formEl.querySelector(`input[type="radio"][name="${CSS.escape(fieldName)}"]:checked`);
+  }
+
+  if (type === "checkbox") {
+    if (Array.isArray(q.options) && q.options.length > 0) {
+      return formEl.querySelectorAll(`input[type="checkbox"][name="${CSS.escape(fieldName)}"]:checked`).length > 0;
+    }
+    const el = formEl.querySelector(`input[type="checkbox"][name="${CSS.escape(fieldName)}"]`);
+    return !!el && el.checked;
+  }
+
+  const el = formEl.querySelector(`[name="${CSS.escape(fieldName)}"]`);
+  if (!el) return false;
+
+  return String(el.value ?? "").trim() !== "";
+}
+
+function markInvalidRequired(questions, formEl){
+  const invalidRows = [];
+
+  questions.forEach((q, index) => {
+    if (!q.required) return;
+
+    const fieldName = getFieldName(q, index);
+    const ok = isRequiredAnswered(q, index, formEl);
+
+    if (!ok) {
+      const row = formEl.querySelector(`.row[data-field="${CSS.escape(fieldName)}"]`);
+      if (row && !row.classList.contains("invalid")) {
+        row.classList.add("invalid");
+        invalidRows.push(row);
+      }
+
+      // marca aria-invalid (melhora acessibilidade e ajuda alguns mobiles)
+      const type = String(q.type || "text").toLowerCase();
+      if (type === "radio" || type === "checkbox") {
+        formEl.querySelectorAll(`[name="${CSS.escape(fieldName)}"]`).forEach(el => el.setAttribute("aria-invalid","true"));
+      } else {
+        const el = formEl.querySelector(`[name="${CSS.escape(fieldName)}"]`);
+        if (el) el.setAttribute("aria-invalid","true");
+      }
+    }
+  });
+
+  return invalidRows;
+}
+
+function scrollToRow(row){
+  if (!row) return;
+
+  // calcula posição absoluta
+  const y = row.getBoundingClientRect().top + window.pageYOffset - 12;
+
+  // método mais confiável em mobile/webview
+  window.scrollTo({ top: y, left: 0, behavior: "smooth" });
+
+  // fallback "forçado" (caso smooth seja ignorado)
+  setTimeout(() => {
+    document.documentElement.scrollTop = y;
+    document.body.scrollTop = y;
+  }, 80);
+}
+    /**************************************************************
+     * ENVIO DO FORMULÁRIO (EXEMPLO)
+     * Aqui você coloca seu save real.
+     **************************************************************/
+  $("testForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formEl = e.target;
+
+  // 1) validação antes de “enviar”
+  clearInvalidUI(formEl);
+
+  // (opcional) validações nativas (email, pattern etc.)
+ if (!formEl.checkValidity()) {
+  const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
+  // no desktop pode usar bolha nativa; no mobile isso atrapalha
+  if (!isMobile && typeof formEl.reportValidity === "function") {
+    formEl.reportValidity();
+  }
+
+  const invalidRows = markInvalidRequired(FORM_QUESTIONS, formEl);
+  setStatus("Responda as perguntas obrigatórias destacadas em vermelho.", "warn");
+
+  const targetRow = invalidRows[0] || formEl.querySelector(":invalid")?.closest(".row");
+
+  // dá 1 tick pra aplicar classes antes do scroll (mobile)
+  setTimeout(() => scrollToRow(targetRow), 50);
+  return;
+}
+
+  // valida obrigatórias do seu modelo (especialmente radios)
+  const invalidRows = markInvalidRequired(FORM_QUESTIONS, formEl);
+ if (invalidRows.length) {
+  setStatus("Responda as perguntas obrigatórias destacadas em vermelho.", "warn");
+  setTimeout(() => scrollToRow(invalidRows[0]), 50);
+  return;
+}
+
+  const btn = $("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  try {
+    const cpf = getCpfFromUrl();
+    const testCode = getTestCodeFromUrl();
+    const submittedAt = new Date().toISOString();
+
+    // seu helper que preserva checkbox múltiplo
+    const rawPayload = formDataToObject(e.target);
+
+// respostas legíveis (vai para "results")
+const respostasLegiveis = buildResultsPerguntasRespostas(FORM_QUESTIONS, rawPayload);
+
+// cálculo de pontuação
+const scoring = buildScoringResult(FORM_QUESTIONS, rawPayload, INDICATORS_CONFIG);
+const resultsPayload = respostasLegiveis;
+const resultsMetaPayload = [];
+let metaOrder = 1;
+
+Object.entries(INDICATORS_CONFIG).forEach(([key, cfg]) => {
+  const indicator = scoring.indicators[key];
+  if (!indicator) return;
+
+  resultsMetaPayload.push({
+    order: metaOrder++,
+    key,
+    label: cfg.label || key,
+    value: indicator.sum,
+    maxPossible: indicator.maxPossible ?? null,
+    answeredCount: indicator.answeredCount ?? 0,
+    ignoredCount: indicator.ignoredCount ?? 0,
+    percent: indicator.percent ?? null
+  });
+
+  if (Array.isArray(cfg?.cutoffs) && cfg.cutoffs.length) {
+    const rule = interpretByCutoffs(indicator.sum, cfg.cutoffs);
+    if (rule?.text) {
+      resultsMetaPayload.push({
+        order: metaOrder++,
+        key: `${key}_interpretacao`,
+        label: `${cfg.label || key} - interpretação`,
+        value: rule.text
+      });
+    }
+  }
+});
+    // 1) Revalida no patients (não confiar só na validação inicial)
+    const { data: patient, error: patientError } = await supabaseClient
+      .from("patients")
+      .select("cpf, tests_liberados, tests_feitos")
+      .eq("cpf", cpf)
+      .maybeSingle();
+
+    if (patientError) {
+      console.error(patientError);
+      throw new Error("Erro ao consultar paciente.");
+    }
+
+    if (!patient) {
+      throw new Error("CPF não encontrado.");
+    }
+
+    const liberado = isTestLiberado(patient.tests_liberados, testCode);
+    if (!liberado) {
+      throw new Error("Teste não liberado.");
+    }
+
+    const jaFeito = isTestFeito(patient.tests_feitos, testCode);
+    if (jaFeito) {
+      // já feito -> volta pra área do paciente
+      redirectToAreaPaciente(cpf);
+      return;
+    }
+
+   const { error: insertError } = await supabaseClient
+  .from("respostas")
+  .insert([
+    {
+      cpf: cpf,
+      code: testCode,
+      submitted_at: submittedAt,
+      results: resultsPayload,          // array puro pergunta/resposta
+      results_meta: resultsMetaPayload  // bruto + pontuação
+    }
+  ]);
+
+   if (insertError) {
+  console.error("ERRO INSERT respostas:", insertError);
+  throw new Error(
+    `Erro ao salvar respostas: ${insertError.message || ""} ${insertError.details || ""} ${insertError.hint || ""}`.trim()
+  );
+}
+
+    // 3) Atualiza tests_feitos no patients (JSONB)
+    const nextTestsFeitos = buildUpdatedTestsFeitos(patient.tests_feitos, testCode, submittedAt);
+
+    const { error: updateError } = await supabaseClient
+      .from("patients")
+      .update({
+        tests_feitos: nextTestsFeitos
+      })
+      .eq("cpf", cpf);
+
+    if (updateError) {
+      console.error(updateError);
+      throw new Error("Resposta salva, mas falhou ao marcar teste como feito.");
+    }
+
+    // 4) Sucesso
+    setStatus("Respostas enviadas com sucesso. Redirecionando...", "ok");
+
+    setTimeout(() => {
+      redirectToAreaPaciente(cpf);
+    }, 700);
+
+  } catch (err) {
+    console.error(err);
+    const msg = err?.message || "Erro ao enviar o formulário.";
+    setStatus(msg, "err");
+    alert(msg);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar";
+  }
+});
+// Monta o formulário dinâmico
+
+function setupLiveInvalidCleanup(questions){
+  const formEl = $("testForm");
+
+  const handler = (e) => {
+    const row = e.target.closest(".row");
+    if (!row) return;
+
+    const fieldName = row.dataset.field;
+    if (!fieldName) return;
+
+    const idx = questions.findIndex((q, i) => getFieldName(q, i) === fieldName);
+    if (idx < 0) return;
+
+    if (isRequiredAnswered(questions[idx], idx, formEl)) {
+      row.classList.remove("invalid");
+      formEl.querySelectorAll(`[name="${CSS.escape(fieldName)}"]`)
+        .forEach(el => el.removeAttribute("aria-invalid"));
+    }
+  };
+
+  formEl.addEventListener("change", handler);
+  formEl.addEventListener("input", handler);
+}
+// Inicia a validação
+renderDynamicForm(FORM_QUESTIONS);
+setupLiveInvalidCleanup(FORM_QUESTIONS);
+validarAcessoAoTeste();
+
+  </script>
+</body>
+</html>
